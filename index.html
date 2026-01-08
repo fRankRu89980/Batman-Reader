@@ -7,6 +7,12 @@
 
 <style>
 
+html, body {
+    height: 100%;
+    overflow-x: hidden;   /* blocca solo orizzontale */
+    overflow-y: auto;     /* consente su/giù */
+}
+
 #bg-video {
     position: fixed;
     top: 0;
@@ -38,6 +44,7 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
     font-size: 20px }
 
 .comic-wrapper {
+    touch-action: pan-y; 
     position: relative;
     max-width: 600px;
     width: 100%;
@@ -326,7 +333,7 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
         </button>
 
         <button class="season-option" onclick="goToSpecificPage(44)">
-            Batman 2 – L'invervo sta arrivando
+            Batman 2 – L'Inveno sta arrivando
         </button>
 
         <button class="season-option" onclick="goToSpecificPage(98)">
@@ -784,9 +791,31 @@ function goToSpecificPage(pageNumber) {
     mostraPagina(paginaCorrente);
 }
 
+comicWrapper.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+}, { passive: true });
+
+comicWrapper.addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+
+    const diffX = endX - startX;
+    const diffY = endY - startY;
+
+    // se il movimento è più verticale che orizzontale → ignora
+    if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+    if (diffX < -50) {
+        direzioneCambio = "left";
+        nextPage();
+    } else if (diffX > 50) {
+        direzioneCambio = "right";
+        prevPage();
+    }
+});
 
 </script>
 
 </body>
 </html>
-
