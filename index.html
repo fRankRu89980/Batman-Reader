@@ -108,6 +108,15 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
     animation: zoomIn 0.3s ease;
 }
 
+/* --- HOVER SMARTPHONE DISATTIVATO --- */
+
+@media (hover: none) {
+    .vignetta-area:hover {
+        background: rgba(255, 255, 255, 0);
+        outline: none;
+    }
+}
+
 /* --- ANIMAZIONI TITOLO --- */
 
 @keyframes zoomIn {
@@ -819,3 +828,4 @@ comicWrapper.addEventListener("touchend", e => {
 
 </body>
 </html>
+
