@@ -174,12 +174,10 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
     to { transform: translateX(0); }
 }
 /* Ottimizzazione Swipe Cellulare */
-.comic-wrapper {
-    touch-action: pan-y; /* consente su/giù, gestiamo noi dx/sx */
-}
 
 @media (max-width: 768px) {
     .comic-wrapper {
+        touch-action: pan-y; /* consente su/giù, gestiamo noi dx/sx */
         max-width: 100%;
         width: 100%;
         margin: 0;
@@ -866,6 +864,7 @@ comicWrapper.addEventListener("touchend", e => {
 
 </body>
 </html>
+
 
 
 
