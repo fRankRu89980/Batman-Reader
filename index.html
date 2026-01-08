@@ -199,6 +199,18 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
         font-size: 1rem;
     }
 }
+/* Sfondo video light */
+@media (max-width: 768px) {
+    #bg-video {
+        filter: brightness(0.2) blur(1px);
+    }
+}
+
+@media (max-width: 768px) {
+    #bg-video {
+        display: none;
+    }
+}
 
 /* classi */
 .page-slide-left { animation: slideLeft 0.5s ease; }
@@ -833,6 +845,7 @@ comicWrapper.addEventListener("touchend", e => {
 
 </body>
 </html>
+
 
 
 
