@@ -20,9 +20,10 @@
 
 html, body {
     height: 100%;
-    overflow: hidden;
-    touch-action: manipulation;
+    overflow-x: hidden;   /* blocca solo orizzontale */
+    overflow-y: auto;     /* consente su/giù */
 }
+
 
 body {
     background-color: #121212;
@@ -173,6 +174,10 @@ h1 { color: #f1c40f; margin-bottom: 8px; }
     to { transform: translateX(0); }
 }
 /* Ottimizzazione Swipe Cellulare */
+.comic-wrapper {
+    touch-action: pan-y; /* consente su/giù, gestiamo noi dx/sx */
+}
+
 @media (max-width: 768px) {
     .comic-wrapper {
         max-width: 100%;
@@ -830,21 +835,38 @@ function goToSpecificPage(pageNumber) {
 }
 
 // ---------------- SCRIPT OTTIMIZZAZIONE SWIPE ----------------
-const comicWrapper = document.querySelector(".comic-wrapper");
+let startX = 0;
+let startY = 0;
 
 comicWrapper.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
 }, { passive: true });
 
 comicWrapper.addEventListener("touchend", e => {
-    endX = e.changedTouches[0].clientX;
-    handleSwipe();
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+
+    const diffX = endX - startX;
+    const diffY = endY - startY;
+
+    // se il movimento è più verticale che orizzontale → ignora
+    if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+    if (diffX < -50) {
+        direzioneCambio = "left";
+        nextPage();
+    } else if (diffX > 50) {
+        direzioneCambio = "right";
+        prevPage();
+    }
 });
 
 </script>
 
 </body>
 </html>
+
 
 
 
