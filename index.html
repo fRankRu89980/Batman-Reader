@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batman Comic Reader</title>
+
+<style>
+
+#page-counter {
+    position: absolute;
+    bottom: 12px;
+    right: 14px;
+    z-index: 20;              /* sopra immagine e ombre */
+    font-size: 14px;
+    color: white;
+    background: rgba(0,0,0,0.55);
+    padding: 4px 10px;
+    border-radius: 12px;
+    pointer-events: none;    /* non interferisce con swipe */
+}
+
+#page-shadow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -3;
+    filter: brightness(0.3) contrast(1.1);
+}
+
+body {
+    background-color: #121212;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1 { color: #f1c40f; margin-bottom: 8px; }
+
+.instruction { 
+    color: #aaa; 
+    font-style: italic; 
+    margin-bottom: 10px; 
+    font-size: 20px }
+
+.comic-wrapper {
+    position: relative;
+    max-width: 600px;
+    width: 80%;
+    border: 2px solid #333;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    perspective: 1200px;
+    overflow: hidden;
+}
+
+#main-comic {
+    width: 100%;
+    display: block;
+    will-change: transform;
+    height: auto;
+    transform-origin: center center;
+    transition: transform 0.25s ease-out;
+}
+
+.vignetta-area {
+    position: absolute;
+    cursor: pointer;
+    background: rgba(255,255,255,0);
+    transition: background 0.25s;
+}
+
+.vignetta-area:hover {
+    background: rgba(255,255,255,0.15);
+    outline: 2px solid #f1c40f;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    cursor: zoom-out;
+}
+
+.modal-content {
+    max-width: 95%;
+    max-height: 95%;
+    border: 5px solid white;
+    border-radius: 10px;
+    animation: zoomIn 0.3s ease;
+}
+
+/* --- ANIMAZIONI TITOLO --- */
+
+@keyframes zoomIn {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes glitch {
+    0% { text-shadow: 2px 2px #f1c40f, -2px -2px #e74c3c; }
+    25% { text-shadow: -2px 2px #9b59b6, 2px -2px #3498db; }
+    50% { text-shadow: 2px -2px #e67e22, -2px 2px #1abc9c; }
+    75% { text-shadow: -2px -2px #f1c40f, 2px 2px #e74c3c; }
+    100% { text-shadow: none; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes fadeGlow {
+    0% { opacity: 0.4; text-shadow: none; }
+    50% { opacity: 1; text-shadow: 0 0 15px #f1c40f; }
+    100% { opacity: 1; text-shadow: none; }
+}
+
+/* classi animate */
+.animate-glitch { animation: glitch 1.2s; }
+.animate-pulse { animation: pulse 1s ease-in-out; }
+.animate-shake { animation: shake 0.6s; }
+.animate-glow  { animation: fadeGlow 1.5s; }
+
+@keyframes fadeOutIn {
+    0%   { opacity: 1; }
+    40%  { opacity: 0; }
+    60%  { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.instruction-animate {
+    animation: fadeOutIn 2.5s ease-in-out;
+}
+
+/* --- PAGE JUMP --- */
+
+.page-jump {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-jump input {
+    width: 90px;
+    padding: 8px 10px;
+    text-align: center;
+    background-color: #1e1e1e;
+    border: 2px solid #333;
+    border-radius: 6px;
+    color: #f1c40f;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.page-jump input::placeholder {
+    color: #777;
+}
+
+.page-jump input:focus {
+    border-color: #f1c40f;
+    box-shadow: 0 0 6px rgba(241, 196, 15, 0.6);
+}
+
+.page-jump button {
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #f1c40f, #d4ac0d);
+    border: none;
+    border-radius: 6px;
+    color: #121212;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-jump button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(241, 196, 15, 0.4);
+}
+
+.page-jump button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* --- SEASON MENU --- */
+
+#season-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #1e1e1e;
+    color: #f1c40f;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 2000;
+}
+
+#season-btn:hover {
+    background: #2a2a2a;
+}
+
+.season-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+}
+
+.season-box {
+    background: #121212;
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+}
+
+.season-box h2 {
+    margin-bottom: 15px;
+    color: #f1c40f;
+}
+
+.season-option {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #1e1e1e;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.season-option:hover {
+    background: #f1c40f;
+    color: #121212;
+}
+
+.close-season {
+    margin-top: 10px;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Immagini Batman e Video Gotham -->
+
+<video id="bg-video" autoplay muted loop playsinline>
+    <source src="gotham.mp4" type="video/mp4">
+
+</video>
+
+
+<!-- Pulsante apertura stagioni -->
+<button id="season-btn">☰</button>
+
+<!-- Popup stagioni -->
+<div id="season-modal" class="season-modal">
+    <div class="season-box">
+        <h2>Scegli la Stagione</h2>
+
+        <button class="season-option" onclick="goToSpecificPage(1)">
+            Batman – L’estate prolungata
+        </button>
+
+        <button class="season-option" onclick="goToSpecificPage(44)">
+            Batman 2 – Vacanza a Malta
+        </button>
+
+        <button class="season-option" onclick="goToSpecificPage(98)">
+            Batman 3 – L’Abisso
+        </button>
+
+        <button class="close-season" onclick="closeSeasonModal()">Chiudi</button>
+
+        
+    </div>
+    
+</div>
+
+<h1 id="comic-title">Batman</h1>
+
+<p class="instruction" id="instruction-text">
+    Clicca su una vignetta per ingrandirla
+</p>
+
+<div class="comic-wrapper">
+    <img id="main-comic" alt="Fumetto">
+    <div id="page-shadow"></div>
+    <div id="page-counter">1 / 111</div>
+    <div id="vignette-container"></div> 
+</div>
+
+<div class="page-jump">
+    <input type="number" id="page-input" min="1" placeholder="Pagina">
+    <button onclick="goToPage()">Vai</button>
+</div>
+
+
+<div class="modal" id="modal" onclick="closeModal()">
+    <img id="img-zoom" class="modal-content">
+</div>
+
+<script>
+
+let seasonMenuOpen = false;
+const mainComic = document.getElementById("main-comic");
+const comicWrapper = document.querySelector(".comic-wrapper");
+const seasonBtn = document.getElementById("season-btn");
+const seasonModal = document.getElementById("season-modal");
+
+function closeSeasonModal() {
+    seasonModal.style.display = "none";
+}
+// ------------- SCRIPT POPUP -------------
+seasonBtn.addEventListener("click", () => {
+    seasonMenuOpen = true;
+    seasonModal.style.display = "flex";
+});
+
+function closeSeasonModal() {
+    seasonMenuOpen = false;
+    seasonModal.style.display = "none";
+}
+
+// ---------------- PAGINE ----------------
+const NUM_TAVOLE = 111;
+const TAVOLE_PATH = "tavole/";
+
+// base automatica
+const fumetti = Array.from(
+    { length: NUM_TAVOLE },
+    (_, i) => `${TAVOLE_PATH}tavola${i}.jpg`
+);
+
+let paginaCorrente = 0;
+
+
+function goToPage() {
+    const input = document.getElementById("page-input");
+    const pageNumber = parseInt(input.value);
+
+    if (isNaN(pageNumber)) return;
+
+    if (pageNumber < 1 || pageNumber > fumetti.length) return;
+
+    paginaCorrente = pageNumber - 1;
+    mostraPagina(paginaCorrente);
+
+    input.value = "";
+}
+
+
+// ---------------- LAYOUT VIGNETTE ----------------
+
+const defaultVignetteLayout = [
+    { top: 0, left: 0, width: 100, height: 100 }
+];
+
+const vignetteLayouts = {
+    100: [
+        { top: 5, left: 5, width: 45, height: 40 },
+        { top: 5, left: 50, width: 45, height: 40 },
+        { top: 50, left: 5, width: 45, height: 40 },
+        { top: 50, left: 50, width: 45, height: 40 }
+    ],
+    101: [
+        { top: 10, left: 10, width: 80, height: 35 },
+        { top: 50, left: 10, width: 80, height: 35 }
+    ]
+};
+// ---------------- VIGNETTE IMMAGINI ----------------
+
+function getVignetteLayout(pagina) {
+    return vignetteLayouts[pagina] || defaultVignetteLayout;
+}
+
+// ---------------- VIGNETTE IMMAGINI ----------------
+function generaVignette(pagina, numeroVignette) {
+    const VIGNETTE_PATH = "vignette/";
+    return Array.from(
+        { length: numeroVignette },
+        (_, i) => `${VIGNETTE_PATH}vignetta${pagina}_${i}.jpeg`
+    );
+}
+
+const vignettePerPagina = {
+    1: generaVignette(1, 1),
+    2: generaVignette(2, 1),
+};
+
+
+// ---------------- CREA AREE ----------------
+function creaVignette(pagina) {
+    const container = document.getElementById("vignette-container");
+    container.innerHTML = "";
+
+    const layout = getVignetteLayout(pagina);
+
+    layout.forEach((v, i) => {
+        const area = document.createElement("div");
+        area.className = "vignetta-area";
+        area.style.top = v.top + "%";
+        area.style.left = v.left + "%";
+        area.style.width = v.width + "%";
+        area.style.height = v.height + "%";
+        area.onclick = () => zoomVignetta(i);
+        container.appendChild(area);
+    });
+}
+
+
+// ---------------- PAGINAZIONE ----------------
+const pageCounter = document.getElementById("page-counter");
+
+function mostraPagina(index) {
+    mainComic.style.transform = "translateX(0) rotateY(0)";
+    mainComic.src = fumetti[index];
+
+    pageCounter.textContent = `${index + 1} / ${fumetti.length}`;
+
+    creaVignette(index + 1);
+}
+
+function nextPage() {
+    if (paginaCorrente < fumetti.length - 1) {
+        paginaCorrente++;
+        mostraPagina(paginaCorrente);
+    }
+}
+
+function prevPage() {
+    if (paginaCorrente > 0) {
+        paginaCorrente--;
+        mostraPagina(paginaCorrente);
+    }
+}
+
+function goToSpecificPage(n) {
+    if (n < 1 || n > fumetti.length) return;
+
+    seasonMenuOpen = false;
+    seasonModal.style.display = "none";
+
+    paginaCorrente = n - 1;
+    mostraPagina(paginaCorrente);
+}
+
+
+// ---------------- ZOOM ----------------
+function zoomVignetta(index) {
+    const modal = document.getElementById("modal");
+    const imgZoom = document.getElementById("img-zoom");
+    const pagina = paginaCorrente + 1;
+
+    if (vignettePerPagina[pagina]) {
+        imgZoom.src = vignettePerPagina[pagina][index];
+    } else {
+        imgZoom.src = "vignetta" + index + ".png";
+    }
+
+    modal.style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+});
+
+
+
+
+// ---------------- SCRIPT ANIMAZIONE SMORFIA ----------------
+const title = document.getElementById("comic-title");
+
+const titleAnimations = [
+    "animate-glitch",
+    "animate-pulse",
+    "animate-shake",
+    "animate-glow"
+];
+
+function animateTitleRandom() {
+    // rimuove eventuali animazioni precedenti
+    title.classList.remove(...titleAnimations);
+
+    // forza il reflow per riavviare l’animazione
+    void title.offsetWidth;
+
+    // sceglie un’animazione casuale
+    const randomAnim = titleAnimations[
+        Math.floor(Math.random() * titleAnimations.length)
+    ];
+
+    title.classList.add(randomAnim);
+}
+
+// avvia ogni 10 secondi
+setInterval(animateTitleRandom, 10000);
+
+const instruction = document.getElementById("instruction-text");
+const testoOriginale = instruction.textContent;
+
+let mostraTombola = false;
+
+
+// Smorfia napoletana 1–90
+const tombola = {
+  1: "L'Italia",
+  2: "‘A criatura",
+  3: "‘A gatta",
+  4: "‘O puorc",
+  5: "‘A mano",
+  6: "Chella ca guarda ‘nterra",
+  7: "‘O vaso",
+  8: "‘A Maronna",
+  9: "‘A figliata",
+  10: "‘E fasule",
+  11: "‘E surice",
+  12: "‘E surdate",
+  13: "Sant’Antonio",
+  14: "‘O mbriaco",
+  15: "‘O guaglione",
+  16: "‘O culo",
+  17: "‘A disgrazia",
+  18: "‘O sanghe",
+  19: "‘A resata",
+  20: "‘A festa",
+  21: "‘A femmena annura",
+  22: "‘O pazzo",
+  23: "‘O scemo",
+  24: "‘E guardie",
+  25: "Natale",
+  26: "Nanninella",
+  27: "‘O cantero",
+  28: "‘E zizze",
+  29: "‘O pate d’‘e criature",
+  30: "‘E palle d’‘o tenente",
+  31: "‘O padrone ‘e casa",
+  32: "‘O capitone",
+  33: "Ll’anne ‘e Cristo",
+  34: "‘A capa",
+  35: "L’auciello",
+  36: "‘E castagnelle",
+  37: "‘O monaco",
+  38: "‘E mmazzate",
+  39: "‘A funa ‘ncolla",
+  40: "‘A paposcia",
+  41: "‘O curtiello",
+  42: "‘O ccafè",
+  43: "‘A femmena ‘ncoppa",
+  44: "‘E ccancelle",
+  45: "‘O vino",
+  46: "‘E denare",
+  47: "‘O muorto",
+  48: "‘O muorto che pparla",
+  49: "‘O piezzo ‘e carne",
+  50: "‘O ppane",
+  51: "‘O ciardino",
+  52: "‘A mamma",
+  53: "‘O viecchio",
+  54: "‘O cappiello",
+  55: "‘A museca",
+  56: "‘A caruta",
+  57: "‘O scartellato",
+  58: "‘O paccotto",
+  59: "‘E pile",
+  60: "Se lamenta",
+  61: "‘O cacciatore",
+  62: "‘O muorto acciso",
+  63: "‘A sposa",
+  64: "‘A sciorta",
+  65: "‘O chianto",
+  66: "‘E doie zetelle",
+  67: "‘O totano dint’‘a chitarra",
+  68: "‘A zuppa cotta",
+  69: "Sott’e ‘ncoppa",
+  70: "‘O palazzo",
+  71: "L’ommo ‘e merda",
+  72: "‘A maraviglia",
+  73: "‘O spitale",
+  74: "‘A rotta",
+  75: "Pulcinella",
+  76: "‘A funtana",
+  77: "‘E riavule",
+  78: "‘A bella figliola",
+  79: "‘O mariuolo",
+  80: "‘A vocca",
+  81: "‘E sciure",
+  82: "‘A tavula ‘mbandita",
+  83: "‘O maletiempo",
+  84: "‘A chiesa",
+  85: "Ll’aneme d’‘o priatorio",
+  86: "‘A puteca",
+  87: "‘E perucchie",
+  88: "‘E casecavalle",
+  89: "‘A vecchia",
+  90: "‘A paura"
+};
+
+function cambiaInstruction() {
+    // riavvia animazione
+    instruction.classList.remove("instruction-animate");
+    void instruction.offsetWidth;
+    instruction.classList.add("instruction-animate");
+
+    setTimeout(() => {
+        if (!mostraTombola) {
+            // mostra numero tombola
+            const numero = Math.floor(Math.random() * 90) + 1;
+            instruction.textContent = `${numero} – ${tombola[numero]}`;
+        } else {
+            // torna alla frase originale
+            instruction.textContent = testoOriginale;
+        }
+
+        mostraTombola = !mostraTombola;
+    }, 1000);
+}
+// ogni 10 secondi
+setInterval(cambiaInstruction, 10000);
+
+// ---------------- SCRIPT SWIPE MOBILE ----------------
+
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
+
+comicWrapper.addEventListener("touchstart", e => {
+    if (seasonMenuOpen) return;
+    startX = e.touches[0].clientX;
+    isDragging = true;
+
+    mainComic.style.transition = "none";
+    document.getElementById("page-shadow").style.transition = "none";
+}, { passive: true });
+
+
+comicWrapper.addEventListener("touchmove", e => {
+    if (!isDragging) return;
+
+    currentX = e.touches[0].clientX;
+    const deltaX = currentX - startX;
+
+    const width = comicWrapper.offsetWidth;
+    const progress = Math.max(-1, Math.min(deltaX / width, 1));
+
+    // rotazione max 12°
+    const rotateY = progress * 12;
+
+    mainComic.style.transform =
+        `translateX(${deltaX}px) rotateY(${rotateY}deg)`;
+
+    // ombra dinamica
+    const shadow = document.getElementById("page-shadow");
+    shadow.style.opacity = Math.min(Math.abs(progress) * 1.2, 0.6);
+
+    shadow.style.background =
+        progress < 0
+        ? "linear-gradient(to left, rgba(0,0,0,0.35), transparent)"
+        : "linear-gradient(to right, rgba(0,0,0,0.35), transparent)";
+}, { passive: true });
+
+comicWrapper.addEventListener("touchend", () => {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const deltaX = currentX - startX;
+    const threshold = comicWrapper.offsetWidth * 0.25;
+
+    mainComic.style.transition = "transform 0.25s ease-out";
+    document.getElementById("page-shadow").style.transition = "opacity 0.25s";
+
+    document.getElementById("page-shadow").style.opacity = 0;
+
+    if (deltaX < -threshold) {
+        nextPage();
+    } else if (deltaX > threshold) {
+        prevPage();
+    } else {
+        // rimbalzo
+        mainComic.style.transform = "translateX(0) rotateY(0)";
+    }
+
+    currentX = 0;
+});
+
+function initReader() {
+    if (!mainComic || !fumetti.length) return;
+    paginaCorrente = Math.max(0, Math.min(paginaCorrente, fumetti.length - 1));
+    mostraPagina(paginaCorrente);
+}
+
+document.addEventListener("DOMContentLoaded", initReader);
+
+</script>
+
+</body>
+</html>
