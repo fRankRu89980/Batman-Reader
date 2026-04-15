@@ -566,7 +566,7 @@ function getIosInstallContent() {
     return {
       buttonLabel: "Aggiungi alla Home",
       title: "Aggiungi con Chrome",
-      description: "Su iPhone, Chrome non mostra un prompt installabile. Puoi comunque aggiungere Comic Reader alla schermata Home dal menu di condivisione.",
+      description: "Su iPhone, Chrome permette di aggiungere il Comic Reader alla schermata Home tramite il menu Condividi",
       steps: [
         "Apri il menu di condivisione di Chrome.",
         "Scegli \"Aggiungi alla schermata Home\".",
@@ -578,7 +578,7 @@ function getIosInstallContent() {
   return {
     buttonLabel: "Aggiungi alla Home",
     title: "Aggiungi con Safari",
-    description: "Su iPhone, Safari permette di aggiungere Comic Reader alla schermata Home tramite il menu Condividi.",
+    description: "Su iPhone, Safari permette di aggiungere il Comic Reader alla schermata Home tramite il menu Condividi.",
     steps: [
       "Tocca il pulsante Condividi di Safari.",
       "Seleziona \"Aggiungi alla schermata Home\".",
