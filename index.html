@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Batman Comic Reader</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Comic Reader" />
+  <link rel="manifest" href="./manifest.json?v=3" />
+  <link rel="icon" href="./icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="gotham.mp4" type="video/mp4" />
+  </video>
+
+  <nav class="menu" aria-label="Stagioni">
+    <a href="#" class="link active" data-page="1" data-label="Volume I - L'estate prolungata">
+      <span class="link-icon">S1</span>
+      <span class="link-text">L'estate prolungata</span>
+    </a>
+    <a href="#" class="link" data-page="45" data-label="Volume II - L'inverno sta arrivando">
+      <span class="link-icon">S2</span>
+      <span class="link-text">L'inverno sta arrivando</span>
+    </a>
+    <a href="#" class="link" data-page="98" data-label="Volume III - L'Abisso">
+      <span class="link-icon">S3</span>
+      <span class="link-text">L'Abisso</span>
+    </a>
+    <a href="#" class="link" data-page="148" data-label="Volume IV - A million miles from home">
+      <span class="link-icon">S4</span>
+      <span class="link-text">A million miles from home</span>
+    </a>
+  </nav>
+
+  <header class="title-container" role="banner">
+    <div class="logo-wrap" aria-hidden="true">
+      <svg class="bat-logo" width="64" height="40" viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M32 4c-6 0-9 6-15 6-3 0-6-3-9-3 2 4 3 8 0 11 6-1 9 4 18 4s12-5 18-4c-3-3-2-7 0-11-3 0-6 3-9 3-6 0-9-6-15-6z" fill="#f1c40f"/>
+      </svg>
+    </div>
+    <div class="title-text">
+      <h1 id="comic-title" class="title-main">Batman</h1>
+      <div id="title-sub" class="title-sub">Volume I - L'estate prolungata</div>
+      <div class="title-reflection" aria-hidden="true"></div>
+      <div class="title-scanline" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <div class="reader-meta">
+    <div id="reader-status" class="status-chip">Caricamento archivio tavole...</div>
+  </div>
+
+  <main class="comic-wrapper" role="region" aria-label="Fumetto">
+    <div class="page-stage" id="page-stage">
+      <div class="comic-frame" aria-hidden="true">
+        <div class="page-layer prev">
+          <img id="comic-prev" alt="" src="" />
+        </div>
+        <div class="page-layer current">
+          <img id="comic-current" alt="Tavola del fumetto" src="" />
+        </div>
+        <div class="page-layer next">
+          <img id="comic-next" alt="" src="" />
+        </div>
+      </div>
+      <div id="page-shadow" aria-hidden="true"></div>
+      <div id="page-counter" aria-hidden="true">-</div>
+      <div id="vignette-container" aria-hidden="false"></div>
+    </div>
+  </main>
+
+  <div class="toolbar" aria-label="Controlli lettore">
+    <button id="prev-btn" class="nav-btn" type="button" aria-label="Pagina precedente">Precedente</button>
+    <div class="page-jump">
+      <input type="number" id="page-input" min="1" placeholder="Pagina" />
+      <button id="page-btn" type="button" aria-label="Vai alla pagina">Vai</button>
+    </div>
+    <button id="next-btn" class="nav-btn" type="button" aria-label="Pagina successiva">Successiva</button>
+  </div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
+    <img id="img-zoom" class="modal-content" alt="Vignetta ingrandita" />
+  </div>
+
+  <button
+    id="install-app-btn"
+    class="install-app-btn"
+    type="button"
+    hidden
+    aria-label="Installa l'app Comic Reader"
+  >
+    Installa App
+  </button>
+
+  <div id="ios-install-modal" class="install-modal" hidden aria-hidden="true">
+    <div
+      class="install-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ios-install-title"
+      aria-describedby="ios-install-description"
+      tabindex="-1"
+    >
+      <h2 id="ios-install-title">Aggiungi alla Home</h2>
+      <p id="ios-install-description">Apri il menu di condivisione del browser e aggiungi il reader alla schermata Home.</p>
+      <ol id="ios-install-steps" class="install-steps">
+        <li>Tocca il tasto Condividi.</li>
+        <li>Scegli "Aggiungi alla schermata Home".</li>
+        <li>Conferma per creare l'icona dell'app.</li>
+      </ol>
+      <div class="install-actions">
+        <button id="ios-install-dismiss" class="install-secondary" type="button">Non mostrare piu'</button>
+        <button id="ios-install-close" class="install-primary" type="button" aria-label="Chiudi istruzioni installazione">Ho capito</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
