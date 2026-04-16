@@ -19,14 +19,7 @@ const seasonPageSources = [
   {
     label: "Volume III - L'Abisso",
     folder: "Batman 3 - L'abisso",
-    pages: [
-      "PG0.jpeg", "PG1.jpeg", "PG2.jpeg", "PG3.jpeg", "PG4.jpeg", "PG5.jpeg", "PG6.jpeg", "PG7.jpeg",
-      "PG8.jpeg", "PG9.jpeg", "PG10.jpeg", "PG11.jpeg", "PG12.jpeg", "PG13.jpeg", "PG14.jpeg", "PG15.jpeg",
-      "PG16.jpeg", "PG17.jpeg", "PG18.jpeg", "PG19.jpeg", "PG20.jpeg", "PG21.jpeg", "PG22.jpeg", "PG23.jpeg",
-      "PG24.jpeg", "PG25.jpeg", "PG26.jpeg", "PG27.jpeg", "PG28.jpeg", "PG29.jpeg", "PG30.jpeg", "PG31.jpeg",
-      "PG32.jpeg", "PG33.jpeg", "PG34.jpeg", "PG35.jpeg", "PG36.jpeg", "PG37.jpeg", "PG38.png", "PG39.jpeg",
-      "PG40.jpeg", "PG41.jpeg", "PG42.png", "PG43.jpeg", "PG44.jpeg", "PG45.png"
-    ]
+    pages: Array.from({ length: 46 }, (_, index) => `PG${index}.jpeg`)
   },
   {
     label: "Volume IV - A Million Miles From Home",
