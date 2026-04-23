@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Comic Reader",
   "short_name": "Reader",
-  "description": "Comic Reader installabile con swipe fluido e lettura fullscreen.",
+  "description": "Comic Reader installabile",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
