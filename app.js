@@ -61,6 +61,8 @@ let modalOpen = false;
 let renderToken = 0;
 let deferredInstallPrompt = null;
 let installPromptInFlight = false;
+let lastUiTapTime = 0;
+let lastUiTapTarget = null;
 
 const pageStage = document.querySelector(".page-stage");
 const prevLayer = document.querySelector(".page-layer.prev");
@@ -119,6 +121,46 @@ const installUiState = {
   sessionClosed: false,
   lastFocusedElement: null
 };
+
+const interactiveUiSelector = [
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "a",
+  "[role='button']",
+  ".menu",
+  ".season-popup-row",
+  ".season-popup-compact",
+  ".toolbar",
+  ".page-jump",
+  ".install-app-btn",
+  ".install-modal",
+  ".theme-song-player-shell",
+  ".theme-video-modal",
+  ".modal"
+].join(", ");
+
+function isInteractiveElement(target) {
+  return target instanceof Element && Boolean(target.closest(interactiveUiSelector));
+}
+
+function guardDoubleTap(target, ms = 320) {
+  const now = Date.now();
+  if(target && lastUiTapTarget === target && now - lastUiTapTime < ms) {
+    return true;
+  }
+
+  lastUiTapTarget = target || null;
+  lastUiTapTime = now;
+  return false;
+}
+
+function resetUiFocus(target) {
+  if(target instanceof HTMLElement && typeof target.blur === "function") {
+    target.blur();
+  }
+}
 
 function updateStatus(message) {
   statusChip.textContent = message;
@@ -321,6 +363,14 @@ function setupMenu() {
 
   let menuOpened = false;
 
+  function openSeasonMenu() {
+    setMenuExpandedState(true);
+  }
+
+  function closeSeasonMenu() {
+    setMenuExpandedState(false);
+  }
+
   function setMenuExpandedState(expanded) {
     menuOpened = expanded;
     menu.classList.toggle("is-compact-hidden", !expanded);
@@ -331,23 +381,31 @@ function setupMenu() {
 
   setMenuExpandedState(false);
 
-  seasonPopupCompact.addEventListener("click", () => {
-    setMenuExpandedState(true);
+  seasonPopupCompact.addEventListener("click", event => {
+    event.stopPropagation();
+    if(guardDoubleTap(event.currentTarget)) return;
+    openSeasonMenu();
+    resetUiFocus(event.currentTarget);
   });
 
   if(seasonMenuClose) {
-    seasonMenuClose.addEventListener("click", () => {
-      setMenuExpandedState(false);
+    seasonMenuClose.addEventListener("click", event => {
+      event.stopPropagation();
+      if(guardDoubleTap(event.currentTarget)) return;
+      closeSeasonMenu();
+      resetUiFocus(event.currentTarget);
     });
   }
 
   seasonLinks.forEach(link => {
     link.addEventListener("click", event => {
       event.preventDefault();
+      event.stopPropagation();
       const page = parseInt(link.dataset.page, 10);
       if(!Number.isNaN(page)) {
         mostraPagina(page - 1);
       }
+      resetUiFocus(event.currentTarget);
     });
   });
 
@@ -369,7 +427,7 @@ function setupMenu() {
   });
 
   document.addEventListener("touchstart", event => {
-    if(!event.target.closest(".menu")) {
+    if(!event.target.closest(".menu") && !event.target.closest(".season-popup-row")) {
       seasonLinks.forEach(link => link.classList.remove("expanded"));
       if(touchTimer) {
         window.clearTimeout(touchTimer);
@@ -393,13 +451,29 @@ function setupMenu() {
 
     lastScrollY = currentScrollY;
   }, { passive: true });
+
+  document.addEventListener("click", event => {
+    if(!menuOpened) return;
+    if(event.target.closest(".menu") || event.target.closest(".season-popup-row")) return;
+    closeSeasonMenu();
+  });
 }
 
 function setupNavigation() {
-  prevBtn.addEventListener("click", prevPage);
-  nextBtn.addEventListener("click", nextPage);
+  prevBtn.addEventListener("click", event => {
+    if(guardDoubleTap(event.currentTarget, 180)) return;
+    prevPage();
+    resetUiFocus(event.currentTarget);
+  });
 
-  pageBtn.addEventListener("click", () => {
+  nextBtn.addEventListener("click", event => {
+    if(guardDoubleTap(event.currentTarget, 180)) return;
+    nextPage();
+    resetUiFocus(event.currentTarget);
+  });
+
+  pageBtn.addEventListener("click", event => {
+    if(guardDoubleTap(event.currentTarget, 220)) return;
     const page = parseInt(pageInput.value, 10);
     if(!Number.isNaN(page) && page >= 1 && page <= fumetti.length) {
       mostraPagina(page - 1);
@@ -407,6 +481,7 @@ function setupNavigation() {
     } else {
       updateStatus(`Inserisci una pagina tra 1 e ${fumetti.length}.`);
     }
+    resetUiFocus(event.currentTarget);
   });
 
   pageInput.addEventListener("keydown", event => {
@@ -484,6 +559,7 @@ function setupSwipe() {
   let touchCurrentY = 0;
   let dragging = false;
   let gestureMode = null;
+  let gestureBlocked = false;
   let pendingFrame = false;
   let lastDeltaX = 0;
 
@@ -521,6 +597,7 @@ function setupSwipe() {
   function clearGesture() {
     dragging = false;
     gestureMode = null;
+    gestureBlocked = false;
     lastDeltaX = 0;
     pendingFrame = false;
     wrapper.classList.remove("is-swiping");
@@ -531,6 +608,10 @@ function setupSwipe() {
 
   wrapper.addEventListener("touchstart", event => {
     if(modalOpen || event.touches.length !== 1) return;
+    if(isInteractiveElement(event.target)) {
+      gestureBlocked = true;
+      return;
+    }
     dragging = true;
     touchStartX = event.touches[0].clientX;
     touchStartY = event.touches[0].clientY;
@@ -541,7 +622,7 @@ function setupSwipe() {
   }, { passive: true });
 
   wrapper.addEventListener("touchmove", event => {
-    if(!dragging) return;
+    if(gestureBlocked || !dragging) return;
 
     touchCurrentX = event.touches[0].clientX;
     touchCurrentY = event.touches[0].clientY;
@@ -574,6 +655,11 @@ function setupSwipe() {
   }, { passive: false });
 
   wrapper.addEventListener("touchend", event => {
+    if(gestureBlocked) {
+      clearGesture();
+      return;
+    }
+
     if(!dragging || modalOpen) {
       clearGesture();
       return;
@@ -1017,6 +1103,7 @@ function setupThemeSongVisual() {
   updateThemeSongProgress();
 
   themeSongPlayBtn.addEventListener("click", async () => {
+    if(guardDoubleTap(themeSongPlayBtn, 220)) return;
     if(themeSongPlayer.paused) {
       try {
         await themeSongPlayer.play();
@@ -1027,11 +1114,14 @@ function setupThemeSongVisual() {
     }
 
     themeSongPlayer.pause();
+    resetUiFocus(themeSongPlayBtn);
   });
 
   themeSongMuteBtn.addEventListener("click", () => {
+    if(guardDoubleTap(themeSongMuteBtn, 220)) return;
     themeSongPlayer.muted = !themeSongPlayer.muted;
     updateThemeSongMuteUi();
+    resetUiFocus(themeSongMuteBtn);
   });
 
   themeSongProgress.addEventListener("input", () => {
@@ -1076,7 +1166,11 @@ function setupThemeSongVisual() {
   });
 
   if(themeVideoClose) {
-    themeVideoClose.addEventListener("click", closeThemeVideo);
+    themeVideoClose.addEventListener("click", event => {
+      event.stopPropagation();
+      if(guardDoubleTap(event.currentTarget, 220)) return;
+      closeThemeVideo();
+    });
   }
 
   if(themeVideoModal) {
@@ -1159,6 +1253,7 @@ function setupInstallUi() {
   });
 
   installBtn.addEventListener("click", async () => {
+    if(guardDoubleTap(installBtn, 320)) return;
     logInstallDebug("click sul pulsante installazione", {
       hasDeferredPrompt: !!deferredInstallPrompt,
       installPromptInFlight,
@@ -1194,25 +1289,30 @@ function setupInstallUi() {
         logInstallDebug("stato install prompt ripulito");
       }
 
+      resetUiFocus(installBtn);
       return;
     }
 
     if(isIos() && !isStandalone()) {
       logInstallDebug("fallback iOS aperto");
       openInstallInstructions();
+      resetUiFocus(installBtn);
       return;
     }
 
     logInstallDebug("nessun deferredPrompt disponibile: browser non supportato o evento non ancora ricevuto");
+    resetUiFocus(installBtn);
   });
 
-  iosInstallClose.addEventListener("click", () => {
+  iosInstallClose.addEventListener("click", event => {
     closeInstallInstructions({ rememberSessionClose: true });
+    resetUiFocus(event.currentTarget);
   });
 
-  iosInstallDismiss.addEventListener("click", () => {
+  iosInstallDismiss.addEventListener("click", event => {
     window.localStorage.setItem(INSTALL_DISMISS_KEY, "1");
     hideInstallUi();
+    resetUiFocus(event.currentTarget);
   });
 
   iosInstallModal.addEventListener("click", event => {

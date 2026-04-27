@@ -422,6 +422,16 @@ body::before{
   color:rgba(255,255,255,0.86);
 }
 
+button,
+.season-popup-compact,
+.toolbar,
+.page-jump,
+.install-app-btn,
+.theme-song-control,
+.theme-video-close{
+  touch-action:manipulation;
+}
+
 .link{
   display:inline-flex;
   align-items:center;
@@ -1412,6 +1422,26 @@ body::before{
 
   .roulette-hint{
     font-size:14px;
+  }
+}
+
+@media (hover:none) and (pointer:coarse){
+  button:hover,
+  .season-popup-compact:hover,
+  .nav-btn:hover,
+  .page-jump button:hover,
+  .theme-song-control:hover,
+  .theme-video-close:hover{
+    transform:none;
+  }
+
+  button:focus,
+  .season-popup-compact:focus,
+  .nav-btn:focus,
+  .page-jump button:focus,
+  .theme-song-control:focus,
+  .theme-video-close:focus{
+    outline:none;
   }
 }
 
