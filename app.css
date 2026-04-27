@@ -164,6 +164,237 @@ body::before{
   align-self:flex-start;
 }
 
+.theme-song-card{
+  width:100%;
+  max-width:760px;
+  margin:0 0 14px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  border-radius:20px;
+  background:rgba(15,23,42,0.7);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 16px 34px rgba(0,0,0,0.26);
+  backdrop-filter:blur(16px);
+}
+
+.theme-song-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  isolation:isolate;
+}
+
+.theme-song-copy{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+
+.theme-song-kicker{
+  display:inline-flex;
+  width:fit-content;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(241,196,15,0.14);
+  color:rgba(255,255,255,0.88);
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.theme-song-text{
+  margin:0;
+  color:rgba(255,255,255,0.86);
+  font-size:14px;
+  line-height:1.5;
+}
+
+.theme-song-visual{
+  width:82px;
+  height:82px;
+  object-fit:cover;
+  border-radius:50%;
+  mix-blend-mode:screen;
+  filter:brightness(1.16) saturate(1.2) contrast(1.2);
+  box-shadow:0 0 34px rgba(241,196,15,0.26);
+  background:transparent;
+}
+
+.theme-song-visual-shell{
+  position:relative;
+  width:82px;
+  height:82px;
+  flex:0 0 82px;
+}
+
+.theme-song-visual-shell .theme-song-visual{
+  position:absolute;
+  inset:0;
+  display:block;
+}
+
+.theme-song-visual-static{
+  opacity:1;
+  transition:opacity .2s ease;
+}
+
+.theme-song-visual-animated{
+  opacity:0;
+  transition:opacity .2s ease;
+}
+
+.theme-song-card.is-playing .theme-song-visual-static{
+  opacity:0;
+}
+
+.theme-song-card.is-playing .theme-song-visual-animated{
+  opacity:1;
+}
+
+.theme-song-player-shell{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px;
+  background:rgba(10,20,46,0.34);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-radius:24px;
+  border:1px solid rgba(106,144,255,0.14);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.02),
+    0 14px 34px rgba(8,16,38,0.16);
+}
+
+.theme-song-control{
+  border:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:52px;
+  height:52px;
+  padding:0 16px;
+  border-radius:20px;
+  background:transparent;
+  color:rgba(222,232,255,0.92);
+  cursor:pointer;
+  overflow:hidden;
+  transition:
+    width .4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    background .25s ease,
+    color .25s ease,
+    transform .25s ease;
+}
+
+.theme-song-control:hover,
+.theme-song-control:focus-visible{
+  width:135px;
+  background:rgba(87,126,219,0.18);
+  outline:none;
+}
+
+.theme-song-card.is-playing .theme-song-play{
+  background:rgba(18,34,72,0.92);
+  color:#ffffff;
+  width:135px;
+  box-shadow:0 10px 24px rgba(8,16,38,0.24);
+}
+
+.theme-song-card.is-muted .theme-song-mute{
+  background:rgba(18,34,72,0.92);
+  color:#ffffff;
+}
+
+.theme-song-control-icon{
+  min-width:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+}
+
+.theme-song-control-text{
+  display:none;
+}
+
+.theme-song-progress-block{
+  min-width:0;
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:0 6px;
+}
+
+.theme-song-time{
+  color:rgba(214,226,255,0.86);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.4px;
+}
+
+.theme-song-progress{
+  width:100%;
+  accent-color:#8faeff;
+}
+
+.theme-song-player{
+  display:none;
+}
+
+@media (max-width:600px){
+  .theme-song-head{
+    align-items:flex-start;
+  }
+
+  .theme-song-visual-shell{
+    width:64px;
+    height:64px;
+    flex-basis:64px;
+  }
+
+  .theme-song-visual{
+    width:64px;
+    height:64px;
+  }
+
+  .theme-song-player-shell{
+    flex-wrap:nowrap;
+    align-items:center;
+    padding:10px;
+  }
+
+  .theme-song-control:hover,
+  .theme-song-control:focus-visible,
+  .theme-song-card.is-playing .theme-song-play{
+    width:112px;
+  }
+
+  .theme-song-progress-block{
+    width:auto;
+    order:2;
+    flex:1 1 auto;
+    padding:0 4px;
+  }
+
+  .theme-song-play{
+    order:1;
+    flex:0 0 auto;
+  }
+
+  .theme-song-mute{
+    order:3;
+    flex:0 0 auto;
+  }
+}
+
 .season-popup-code{
   min-width:auto;
   width:32px;
@@ -616,6 +847,76 @@ body::before{
   box-shadow:0 30px 80px rgba(0,0,0,0.8);
 }
 
+.theme-video-modal{
+  position:fixed;
+  inset:0;
+  z-index:3100;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(3,8,20,0.82);
+  backdrop-filter:blur(10px);
+}
+
+.theme-video-modal[hidden]{
+  display:none;
+}
+
+.theme-video-card{
+  width:min(100%, 920px);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:18px;
+  border-radius:24px;
+  background:rgba(11,19,38,0.92);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:0 28px 64px rgba(0,0,0,0.48);
+}
+
+.theme-video-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.theme-video-title{
+  font-size:14px;
+  font-weight:800;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.9);
+}
+
+.theme-video-close{
+  border:none;
+  border-radius:999px;
+  padding:10px 16px;
+  background:rgba(255,255,255,0.08);
+  color:var(--text);
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .18s ease, background .18s ease;
+}
+
+.theme-video-close:hover,
+.theme-video-close:focus-visible{
+  transform:translateY(-2px);
+  background:rgba(255,255,255,0.16);
+  outline:none;
+}
+
+.theme-video-player{
+  width:100%;
+  max-height:72vh;
+  display:block;
+  border-radius:18px;
+  background:#000;
+  box-shadow:0 16px 44px rgba(0,0,0,0.42);
+}
+
 .install-app-btn{
   position:fixed;
   right:18px;
@@ -1064,6 +1365,30 @@ body::before{
   .install-modal-card{
     width:min(100%, 420px);
     border-radius:24px 24px 18px 18px;
+  }
+
+  .theme-video-modal{
+    align-items:center;
+    justify-content:center;
+    padding:12px;
+  }
+
+  .theme-video-card{
+    padding:14px;
+    border-radius:24px 24px 18px 18px;
+  }
+
+  .theme-video-topbar{
+    align-items:flex-start;
+  }
+
+  .theme-video-close{
+    padding:9px 14px;
+  }
+
+  .theme-video-player{
+    max-height:58vh;
+    border-radius:16px;
   }
 
   .roulette-section{

@@ -65,7 +65,74 @@
         <div id="reader-status" class="status-chip">Caricamento archivio tavole...</div>
       </div>
 
-      <div class="season-popup-helper">👇 Clicca qui sotto per cambiare stagione</div>
+      <section class="theme-song-card" aria-label="Theme song del reader">
+        <div class="theme-song-head">
+          <div class="theme-song-copy">
+            <span class="theme-song-kicker">Le Avventure di Batman</span>
+            <p class="theme-song-text">Concentrazione e Mindset🧠</p>
+          </div>
+          <div class="theme-song-visual-shell" aria-hidden="true">
+            <canvas
+              class="theme-song-visual theme-song-visual-static"
+              id="theme-song-visual-static"
+              width="82"
+              height="82"
+            ></canvas>
+            <img
+              class="theme-song-visual theme-song-visual-animated"
+              id="theme-song-visual-animated"
+              src="./media/theme-visualizer.gif"
+              data-src="./media/theme-visualizer.gif"
+              alt="Visualizzatore animato giallo del theme song"
+              loading="lazy"
+            />
+          </div>
+        </div>
+        <div class="theme-song-player-shell" aria-label="Controlli theme song">
+          <button
+            class="theme-song-control theme-song-play"
+            id="theme-song-play"
+            type="button"
+            aria-label="Riproduci theme song"
+            aria-pressed="false"
+          >
+            <span class="theme-song-control-icon" id="theme-song-play-icon">▶</span>
+            
+          </button>
+
+          <div class="theme-song-progress-block">
+            <div class="theme-song-time" id="theme-song-time">00:00 / 00:00</div>
+            <input
+              class="theme-song-progress"
+              id="theme-song-progress"
+              type="range"
+              min="0"
+              max="100"
+              value="0"
+              step="0.1"
+              aria-label="Avanzamento theme song"
+            />
+          </div>
+
+          <button
+            class="theme-song-control theme-song-mute"
+            id="theme-song-mute"
+            type="button"
+            aria-label="Attiva o disattiva audio"
+            aria-pressed="false"
+          >
+            <span class="theme-song-control-icon" id="theme-song-mute-icon">🔊</span>
+          </button>
+        </div>
+
+        <audio class="theme-song-player" id="theme-song-player" preload="metadata">
+          <source src="./media/themesong.MP4" type="audio/mp4" />
+          <source src="./media/themesong.MP4" type="video/mp4" />
+          Il tuo browser non supporta il player audio
+        </audio>
+      </section>
+
+      <div class="season-popup-helper">👇Clicca qui sotto per cambiare stagione</div>
 
       <div class="season-popup-row">
         <button
@@ -161,6 +228,36 @@
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" hidden>
     <img id="img-zoom" class="modal-content" alt="Vignetta ingrandita" />
+  </div>
+
+  <div
+    class="theme-video-modal"
+    id="theme-video-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="theme-video-title"
+    aria-hidden="true"
+    tabindex="-1"
+    inert
+    hidden
+  >
+    <div class="theme-video-card">
+      <div class="theme-video-topbar">
+        <div id="theme-video-title" class="theme-video-title">Theme Song</div>
+        <button id="theme-video-close" class="theme-video-close" type="button" aria-label="Chiudi video theme song">
+          Chiudi
+        </button>
+      </div>
+      <video
+        id="theme-video-player"
+        class="theme-video-player"
+        playsinline
+        muted
+        preload="metadata"
+      >
+        <source src="./media/themesong.MP4" type="video/mp4" />
+      </video>
+    </div>
   </div>
 
   <button
