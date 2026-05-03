@@ -1,10 +1,9 @@
-﻿const CACHE_NAME = "comic-reader-shell-v7";
+const CACHE_NAME = "comic-reader-shell-v8";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./storie.html",
   "./personaggi.html",
-  "./roulette.html",
   "./crediti.html",
   "./app.css?v=7",
   "./app.js?v=7",
@@ -19,7 +18,6 @@ function isAppShellAsset(pathname) {
     pathname.endsWith("/index.html") ||
     pathname.endsWith("/storie.html") ||
     pathname.endsWith("/personaggi.html") ||
-    pathname.endsWith("/roulette.html") ||
     pathname.endsWith("/crediti.html") ||
     pathname.endsWith("/app.css") ||
     pathname.endsWith("/app.js") ||
@@ -75,10 +73,28 @@ async function handleStaticAssetRequest(request) {
   return cacheNetworkResponse(request, networkResponse);
 }
 
+async function precacheAppShell() {
+  const cache = await caches.open(CACHE_NAME);
+
+  for(const asset of APP_SHELL) {
+    try {
+      const request = new Request(asset, { cache: "no-cache" });
+      const response = await fetch(request);
+
+      if(!response.ok) {
+        console.warn(`[SW] Precache saltato per ${asset}: HTTP ${response.status}`);
+        continue;
+      }
+
+      await cache.put(request, response.clone());
+    } catch (error) {
+      console.warn(`[SW] Precache non riuscito per ${asset}:`, error);
+    }
+  }
+}
+
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil(precacheAppShell());
   self.skipWaiting();
 });
 
@@ -119,5 +135,3 @@ self.addEventListener("fetch", event => {
     event.respondWith(handleStaticAssetRequest(event.request));
   }
 });
-
-
