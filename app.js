@@ -64,6 +64,8 @@ let deferredInstallPrompt = null;
 let installPromptInFlight = false;
 let lastUiTapTime = 0;
 let lastUiTapTarget = null;
+let runtimeStyleSheet = null;
+const runtimeRuleCache = new Map();
 
 const pageStage = document.querySelector(".page-stage");
 const prevLayer = document.querySelector(".page-layer.prev");
@@ -169,6 +171,51 @@ function resetUiFocus(target) {
   if(target instanceof HTMLElement && typeof target.blur === "function") {
     target.blur();
   }
+}
+
+function getRuntimeStyleSheet() {
+  if(runtimeStyleSheet) return runtimeStyleSheet;
+
+  runtimeStyleSheet = Array.from(document.styleSheets).find(sheet => {
+    try {
+      return typeof sheet.href === "string" && sheet.href.includes("/app.css");
+    } catch {
+      return false;
+    }
+  }) || null;
+
+  return runtimeStyleSheet;
+}
+
+function getRuntimeRule(selector) {
+  if(runtimeRuleCache.has(selector)) {
+    return runtimeRuleCache.get(selector);
+  }
+
+  const sheet = getRuntimeStyleSheet();
+  if(!sheet) return null;
+
+  let matchedRule = null;
+
+  try {
+    matchedRule = Array.from(sheet.cssRules).find(rule =>
+      rule instanceof CSSStyleRule && rule.selectorText === selector
+    ) || null;
+  } catch (error) {
+    console.warn(`Impossibile leggere la regola CSS ${selector}:`, error);
+    return null;
+  }
+
+  if(!matchedRule) return null;
+
+  runtimeRuleCache.set(selector, matchedRule);
+  return matchedRule;
+}
+
+function setRuntimeCssVariable(name, value) {
+  const rootRule = getRuntimeRule(":root");
+  if(!rootRule) return;
+  rootRule.style.setProperty(name, value);
 }
 
 function updateStatus(message) {
@@ -332,15 +379,12 @@ function getPageSrc(index) {
 
 function setStageAspectRatio(width, height) {
   if(width > 0 && height > 0) {
-    pageStage.style.aspectRatio = `${width} / ${height}`;
+    setRuntimeCssVariable("--page-stage-aspect-ratio", `${width} / ${height}`);
   }
 }
 
 function setLayerTransitions(enabled) {
-  const value = enabled ? "transform .3s ease" : "none";
-  [prevLayer, currentLayer, nextLayer].forEach(layer => {
-    layer.style.transition = value;
-  });
+  setRuntimeCssVariable("--page-layer-transition", enabled ? "transform .3s ease" : "none");
 }
 
 function setLayerTransforms(deltaX) {
@@ -348,14 +392,16 @@ function setLayerTransforms(deltaX) {
   const progress = width ? deltaX / width : 0;
   const limited = Math.max(-1, Math.min(progress, 1));
 
-  prevLayer.style.transform = `translate3d(${deltaX - width}px,0,0)`;
-  currentLayer.style.transform = `translate3d(${deltaX}px,0,0)`;
-  nextLayer.style.transform = `translate3d(${deltaX + width}px,0,0)`;
-
-  shadow.style.opacity = Math.min(Math.abs(limited) * 0.55, 0.55);
-  shadow.style.background = limited < 0
-    ? "linear-gradient(to left, rgba(0,0,0,0.5), transparent)"
-    : "linear-gradient(to right, rgba(0,0,0,0.5), transparent)";
+  setRuntimeCssVariable("--prev-layer-transform", `translate3d(${deltaX - width}px,0,0)`);
+  setRuntimeCssVariable("--current-layer-transform", `translate3d(${deltaX}px,0,0)`);
+  setRuntimeCssVariable("--next-layer-transform", `translate3d(${deltaX + width}px,0,0)`);
+  setRuntimeCssVariable("--page-shadow-opacity", `${Math.min(Math.abs(limited) * 0.55, 0.55)}`);
+  setRuntimeCssVariable(
+    "--page-shadow-background",
+    limited < 0
+      ? "linear-gradient(to left, rgba(0,0,0,0.5), transparent)"
+      : "linear-gradient(to right, rgba(0,0,0,0.5), transparent)"
+  );
 }
 
 function setEmptyLayer(layer, image) {
@@ -423,12 +469,10 @@ function createVignetteArea(pagina, index, areaData) {
   const area = document.createElement("div");
   const vignettaSrc = generaVignetta(pagina, index);
   const hasVignetta = vignetteDisponibili.has(vignettaSrc);
+  const layoutClass = `vignetta-layout-${index}`;
 
   area.className = "vignetta-area";
-  area.style.top = `${areaData.top}%`;
-  area.style.left = `${areaData.left}%`;
-  area.style.width = `${areaData.width}%`;
-  area.style.height = `${areaData.height}%`;
+  area.classList.add(layoutClass);
   area.dataset.vignettaSrc = vignettaSrc;
   area.dataset.hasVignetta = hasVignetta ? "true" : "false";
 
@@ -652,10 +696,10 @@ function setupTitleEffects() {
 
   function doGlitch() {
     title.classList.add("glitch");
-    title.style.filter = "brightness(1.4) saturate(1.1)";
+    title.classList.add("glitch-flash");
     window.setTimeout(() => {
       title.classList.remove("glitch");
-      title.style.filter = "";
+      title.classList.remove("glitch-flash");
     }, 360);
   }
 
@@ -671,9 +715,9 @@ function setupTitleEffects() {
 
   ["mouseenter", "touchstart"].forEach(eventName => {
     title.addEventListener(eventName, () => {
-      title.style.transform = "translateY(-3px) scale(1.02)";
+      title.classList.add("is-touch-pulse");
       window.setTimeout(() => {
-        title.style.transform = "";
+        title.classList.remove("is-touch-pulse");
       }, 220);
     }, { passive: true });
   });
@@ -1629,8 +1673,8 @@ function setupRoulette() {
     const x = centerX + Math.cos(angle) * ballRadius;
     const y = centerY + Math.sin(angle) * ballRadius;
 
-    rouletteBall.style.left = `${x}px`;
-    rouletteBall.style.top = `${y}px`;
+    setRuntimeCssVariable("--roulette-ball-left", `${x}px`);
+    setRuntimeCssVariable("--roulette-ball-top", `${y}px`);
   }
 
   function normalizeRouletteAngle(angle) {

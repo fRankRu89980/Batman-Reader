@@ -8,6 +8,15 @@
   --text:#ffffff;
   --muted:rgba(255,255,255,0.72);
   --shadow:0 24px 60px rgba(0,0,0,0.55);
+  --page-stage-aspect-ratio:3 / 4;
+  --page-layer-transition:transform .3s ease;
+  --prev-layer-transform:translate3d(-100%,0,0);
+  --current-layer-transform:translate3d(0,0,0);
+  --next-layer-transform:translate3d(100%,0,0);
+  --page-shadow-opacity:0;
+  --page-shadow-background:linear-gradient(to right, rgba(0,0,0,0.5), transparent);
+  --roulette-ball-left:50%;
+  --roulette-ball-top:7%;
 }
 
 html{
@@ -1140,6 +1149,14 @@ button,
   filter:drop-shadow(0 6px 18px rgba(0,0,0,0.55));
 }
 
+.title-main.glitch-flash{
+  filter:brightness(1.4) saturate(1.1);
+}
+
+.title-main.is-touch-pulse{
+  transform:translateY(-3px) scale(1.02);
+}
+
 .title-main.glitch::before,
 .title-main.glitch::after{
   content:attr(data-text);
@@ -1253,7 +1270,7 @@ button,
   transform-style:preserve-3d;
   contain:paint;
   isolation:isolate;
-  aspect-ratio:3 / 4;
+  aspect-ratio:var(--page-stage-aspect-ratio);
   border-radius:16px;
 }
 
@@ -1268,7 +1285,7 @@ button,
   inset:0;
   pointer-events:none;
   will-change:transform;
-  transform:translate3d(0,0,0);
+  transition:var(--page-layer-transition);
 }
 
 .page-layer.is-empty{
@@ -1286,9 +1303,20 @@ button,
   will-change:transform;
 }
 
-.page-layer.prev{ z-index:1; }
-.page-layer.current{ z-index:2; }
-.page-layer.next{ z-index:1; }
+.page-layer.prev{
+  z-index:1;
+  transform:var(--prev-layer-transform);
+}
+
+.page-layer.current{
+  z-index:2;
+  transform:var(--current-layer-transform);
+}
+
+.page-layer.next{
+  z-index:1;
+  transform:var(--next-layer-transform);
+}
 
 .page-layer.current img{
   filter:none;
@@ -1298,7 +1326,8 @@ button,
   position:absolute;
   inset:0;
   pointer-events:none;
-  opacity:0;
+  opacity:var(--page-shadow-opacity);
+  background:var(--page-shadow-background);
   transition:opacity .25s ease;
   z-index:3;
 }
@@ -1325,12 +1354,21 @@ button,
 
 .vignetta-area{
   position:absolute;
+  inset:0;
   cursor:pointer;
   background:rgba(255,255,255,0);
   transition:background .18s ease;
   -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;
   user-select:none;
+}
+
+.vignetta-area.vignetta-layout-0{
+  inset:auto;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
 }
 
 @media (hover:hover){
@@ -1666,6 +1704,8 @@ button,
 
 .roulette-ball{
   position:absolute;
+  left:var(--roulette-ball-left);
+  top:var(--roulette-ball-top);
   width:18px;
   height:18px;
   background:#fff;
@@ -2163,5 +2203,8 @@ button,
     text-shadow:0 0 8px rgba(0,0,0,0.7);
   }
 }
+
+
+
 
 
