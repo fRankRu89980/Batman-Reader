@@ -1,22 +1,54 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'"
+  />
   <title>Batman Comic Reader</title>
   <meta name="theme-color" content="#000000" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Comic Reader" />
-  <link rel="manifest" href="./manifest.json?v=6" />
-  <link rel="icon" href="./icons/icon-192.png?v=6" type="image/png" />
-  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=6" />
-  <link rel="stylesheet" href="./app.css?v=6" />
+  <link rel="manifest" href="./manifest.json?v=7" />
+  <link rel="icon" href="./icons/icon-192.png?v=7" type="image/png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=7" />
+  <link rel="stylesheet" href="./app.css?v=7" />
 </head>
 <body>
-  <video id="bg-video" autoplay muted loop playsinline>
+  <video id="bg-video" autoplay muted loop playsinline preload="metadata">
     <source src="gotham.mp4" type="video/mp4" />
   </video>
+
+  <button
+    id="hamburger-toggle"
+    class="hamburger-toggle"
+    type="button"
+    aria-label="Apri menu principale"
+    aria-controls="site-drawer"
+    aria-expanded="false"
+  >
+    <span aria-hidden="true">&#9776;</span>
+  </button>
+
+  <div id="site-drawer-overlay" class="site-drawer-overlay" hidden></div>
+
+  <aside
+    id="site-drawer"
+    class="site-drawer"
+    aria-label="Menu principale"
+    aria-hidden="true"
+    inert
+  >
+    <nav class="site-drawer-nav" aria-label="Link principali">
+      <a href="./index.html" class="site-drawer-link">Home</a>
+      <a href="./storie.html" class="site-drawer-link">Storie</a>
+      <a href="./personaggi.html" class="site-drawer-link">Personaggi</a>
+      <a href="./crediti.html" class="site-drawer-link">Crediti</a>
+    </nav>
+  </aside>
 
   <nav id="season-menu" class="menu season-popup-expanded is-compact-hidden" aria-label="Stagioni">
     <button
@@ -69,7 +101,7 @@
         <div class="theme-song-head">
           <div class="theme-song-copy">
             <span class="theme-song-kicker">Le Avventure di Batman</span>
-            <p class="theme-song-text">Concentrazione e Mindset🧠</p>
+            <p class="theme-song-text">Concentrazione e Mindset</p>
           </div>
           <div class="theme-song-visual-shell" aria-hidden="true">
             <canvas
@@ -96,7 +128,7 @@
             aria-label="Riproduci theme song"
             aria-pressed="false"
           >
-            <span class="theme-song-control-icon" id="theme-song-play-icon">▶</span>
+            <span class="theme-song-control-icon" id="theme-song-play-icon">&#9654;</span>
             
           </button>
 
@@ -121,7 +153,7 @@
             aria-label="Attiva o disattiva audio"
             aria-pressed="false"
           >
-            <span class="theme-song-control-icon" id="theme-song-mute-icon">🔊</span>
+            <span class="theme-song-control-icon" id="theme-song-mute-icon">&#128266;</span>
           </button>
         </div>
 
@@ -132,7 +164,7 @@
         </audio>
       </section>
 
-      <div class="season-popup-helper">👇Clicca qui sotto per cambiare stagione</div>
+      <div class="season-popup-helper">Clicca qui sotto per cambiare stagione</div>
 
       <div class="season-popup-row">
         <button
@@ -253,7 +285,7 @@
         class="theme-video-player"
         playsinline
         muted
-        preload="metadata"
+        preload="none"
       >
         <source src="./media/themesong.MP4" type="video/mp4" />
       </video>
@@ -293,6 +325,8 @@
     </div>
   </div>
 
-  <script src="./app.js?v=6" defer></script>
+  <script src="./app.js?v=7" defer></script>
 </body>
 </html>
+
+

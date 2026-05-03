@@ -1,5 +1,6 @@
-const APP_VERSION = "6";
+﻿const APP_VERSION = "7";
 const SERVICE_WORKER_URL = `./sw.js?v=${APP_VERSION}`;
+const APP_STORAGE_PREFIX = "comic-reader-";
 const INSTALL_DISMISS_KEY = "comic-reader-install-dismissed";
 const LOGIN_SUCCESS_EVENT = "comic-reader:login-success";
 const SWIPE_INTENT_THRESHOLD = 10;
@@ -116,6 +117,11 @@ const seasonPopupCompact = document.getElementById("season-popup-compact");
 const seasonPopupCode = document.getElementById("season-popup-code");
 const seasonPopupLabel = document.getElementById("season-popup-label");
 const seasonMenuClose = document.getElementById("season-menu-close");
+const hamburgerToggle = document.getElementById("hamburger-toggle");
+const siteDrawer = document.getElementById("site-drawer");
+const siteDrawerOverlay = document.getElementById("site-drawer-overlay");
+const siteDrawerLinks = Array.from(document.querySelectorAll(".site-drawer-link"));
+const bgVideo = document.getElementById("bg-video");
 
 const installUiState = {
   sessionClosed: false,
@@ -130,6 +136,9 @@ const interactiveUiSelector = [
   "a",
   "[role='button']",
   ".menu",
+  ".hamburger-toggle",
+  ".site-drawer",
+  ".site-drawer-overlay",
   ".season-popup-row",
   ".season-popup-compact",
   ".toolbar",
@@ -166,9 +175,129 @@ function updateStatus(message) {
   statusChip.textContent = message;
 }
 
+function setupMediaPerformance() {
+  if(!bgVideo) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveDataEnabled = navigator.connection && navigator.connection.saveData === true;
+  const shouldReduceMedia = prefersReducedMotion || saveDataEnabled;
+
+  if(shouldReduceMedia) {
+    bgVideo.removeAttribute("autoplay");
+    bgVideo.pause();
+    bgVideo.preload = "none";
+    return;
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if(document.hidden) {
+      bgVideo.pause();
+      return;
+    }
+
+    const playPromise = bgVideo.play();
+    if(playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+  });
+}
+
+function setupHamburgerMenu() {
+  if(!hamburgerToggle || !siteDrawer || !siteDrawerOverlay) return;
+
+  let drawerOpen = false;
+  let lastDrawerFocus = null;
+
+  // Apriamo il drawer spostando il focus al primo link utile.
+  function openDrawer() {
+    drawerOpen = true;
+    lastDrawerFocus = document.activeElement instanceof HTMLElement ? document.activeElement : hamburgerToggle;
+    hamburgerToggle.setAttribute("aria-expanded", "true");
+    hamburgerToggle.setAttribute("aria-label", "Chiudi menu principale");
+    siteDrawerOverlay.hidden = false;
+    siteDrawer.classList.add("is-open");
+    siteDrawer.removeAttribute("aria-hidden");
+    siteDrawer.inert = false;
+    document.body.classList.add("hamburger-open");
+
+    const firstLink = siteDrawerLinks[0];
+    if(firstLink && typeof firstLink.focus === "function") {
+      firstLink.focus();
+    }
+  }
+
+  // Chiudiamo il drawer e riportiamo il focus al trigger.
+  function closeDrawer() {
+    drawerOpen = false;
+    hamburgerToggle.setAttribute("aria-expanded", "false");
+    hamburgerToggle.setAttribute("aria-label", "Apri menu principale");
+    siteDrawer.classList.remove("is-open");
+    siteDrawer.setAttribute("aria-hidden", "true");
+    siteDrawer.inert = true;
+    siteDrawerOverlay.hidden = true;
+    document.body.classList.remove("hamburger-open");
+
+    if(
+      siteDrawer.contains(document.activeElement) &&
+      lastDrawerFocus &&
+      typeof lastDrawerFocus.focus === "function"
+    ) {
+      lastDrawerFocus.focus();
+    }
+  }
+
+  function toggleDrawer() {
+    if(drawerOpen) {
+      closeDrawer();
+      return;
+    }
+    openDrawer();
+  }
+
+  hamburgerToggle.addEventListener("click", event => {
+    event.stopPropagation();
+    if(guardDoubleTap(event.currentTarget, 220)) return;
+    toggleDrawer();
+    resetUiFocus(event.currentTarget);
+  });
+
+  siteDrawerOverlay.addEventListener("click", () => {
+    closeDrawer();
+  });
+
+  siteDrawerLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      closeDrawer();
+    });
+  });
+
+  document.addEventListener("keydown", event => {
+    if(event.key === "Escape" && drawerOpen) {
+      closeDrawer();
+    }
+  });
+}
+
 function updateNavButtons() {
   prevBtn.disabled = paginaCorrente === 0;
   nextBtn.disabled = paginaCorrente === fumetti.length - 1;
+}
+
+function getInitialPageIndexFromQuery() {
+  const season = new URLSearchParams(window.location.search).get("season");
+  if(!season) return 0;
+
+  // Supporto semplice per i link della libreria "Storie".
+  const seasonMap = {
+    s1: 0,
+    s2: 44,
+    s3: 97,
+    s4: 143
+  };
+
+  return Object.prototype.hasOwnProperty.call(seasonMap, season)
+    ? seasonMap[season]
+    : 0;
 }
 
 function getSeasonForPage(pageNumber) {
@@ -822,15 +951,32 @@ function closeInstallInstructions(options = {}) {
   }
 }
 
+function clearPrefixedStorage(storage, prefix = APP_STORAGE_PREFIX) {
+  if(!storage) return;
+
+  const removableKeys = [];
+
+  for(let index = 0; index < storage.length; index += 1) {
+    const key = storage.key(index);
+    if(typeof key === "string" && key.startsWith(prefix)) {
+      removableKeys.push(key);
+    }
+  }
+
+  removableKeys.forEach(key => {
+    storage.removeItem(key);
+  });
+}
+
 function clearClientAuthState() {
   try {
-    window.localStorage.clear();
+    clearPrefixedStorage(window.localStorage);
   } catch (error) {
     console.warn("Impossibile pulire localStorage:", error);
   }
 
   try {
-    window.sessionStorage.clear();
+    clearPrefixedStorage(window.sessionStorage);
   } catch (error) {
     console.warn("Impossibile pulire sessionStorage:", error);
   }
@@ -928,13 +1074,11 @@ async function handlePostLoginRefresh(options = {}) {
 }
 
 function setupPostLoginRefreshBridge() {
-  window.ComicReaderAuth = {
+  // Espone solo il minimo indispensabile per eventuali integrazioni auth future.
+  window.ComicReaderAuth = Object.freeze({
     appVersion: APP_VERSION,
-    buildCacheBustUrl,
-    clearClientAuthState,
-    fetchFreshJson,
     handlePostLoginRefresh
-  };
+  });
 
   window.addEventListener(LOGIN_SUCCESS_EVENT, event => {
     handlePostLoginRefresh(event.detail || {});
@@ -1081,7 +1225,7 @@ function setupThemeSongVisual() {
     themeSongCard.classList.toggle("is-playing", isPlaying);
     themeSongPlayBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
     themeSongPlayBtn.setAttribute("aria-label", isPlaying ? "Metti in pausa theme song" : "Riproduci theme song");
-    themeSongPlayIcon.textContent = isPlaying ? "❚❚" : "▶";
+    themeSongPlayIcon.textContent = isPlaying ? "\u275A\u275A" : "\u25B6";
   }
 
   function updateThemeSongMuteUi() {
@@ -1089,7 +1233,7 @@ function setupThemeSongVisual() {
     themeSongCard.classList.toggle("is-muted", muted);
     themeSongMuteBtn.setAttribute("aria-pressed", muted ? "true" : "false");
     themeSongMuteBtn.setAttribute("aria-label", muted ? "Riattiva audio" : "Disattiva audio");
-    themeSongMuteIcon.textContent = muted ? "🔇" : "🔊";
+    themeSongMuteIcon.textContent = muted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
   }
 
   if(themeSongVisualAnimated.complete) {
@@ -1623,6 +1767,9 @@ function setupRoulette() {
 }
 
 function boot() {
+  paginaCorrente = getInitialPageIndexFromQuery();
+  setupMediaPerformance();
+  setupHamburgerMenu();
   setupMenu();
   setupNavigation();
   setupTitleEffects();
@@ -1636,3 +1783,5 @@ function boot() {
 }
 
 boot();
+
+

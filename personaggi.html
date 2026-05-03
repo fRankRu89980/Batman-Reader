@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'"
+  />
+  <title>Personaggi | Batman Comic Reader</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Comic Reader" />
+  <link rel="manifest" href="./manifest.json?v=7" />
+  <link rel="icon" href="./icons/icon-192.png?v=7" type="image/png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=7" />
+  <link rel="stylesheet" href="./app.css?v=7" />
+</head>
+<body class="personaggi-page">
+  <video id="bg-video" autoplay muted loop playsinline preload="metadata">
+    <source src="gotham.mp4" type="video/mp4" />
+  </video>
+
+  <button
+    id="hamburger-toggle"
+    class="hamburger-toggle"
+    type="button"
+    aria-label="Apri menu principale"
+    aria-controls="site-drawer"
+    aria-expanded="false"
+  >
+    <span aria-hidden="true">&#9776;</span>
+  </button>
+
+  <div id="site-drawer-overlay" class="site-drawer-overlay" hidden></div>
+
+  <aside
+    id="site-drawer"
+    class="site-drawer"
+    aria-label="Menu principale"
+    aria-hidden="true"
+    inert
+  >
+    <nav class="site-drawer-nav" aria-label="Link principali">
+      <a href="./index.html" class="site-drawer-link">Home</a>
+      <a href="./storie.html" class="site-drawer-link">Storie</a>
+      <a href="./personaggi.html" class="site-drawer-link" aria-current="page">Personaggi</a>
+      <a href="./crediti.html" class="site-drawer-link">Crediti</a>
+    </nav>
+  </aside>
+
+  <main class="showcase-shell" role="main">
+    <header class="showcase-hero">
+      <span class="stories-badge">Produzione</span>
+      <h1 class="showcase-title">Personaggi</h1>
+      <p class="showcase-intro">
+        Questa sezione prepara il terreno per un'attuale e futura scheda personaggi. Questi sono gli attuali personaggi presenti nelle seguenti stagioni
+      </p>
+      <div class="stories-actions">
+        <a class="showcase-back-link" href="./index.html">Torna al Fumetto</a>
+      </div>
+    </header>
+
+    <section class="showcase-grid" aria-label="Anteprima personaggi">
+      <article class="showcase-card">
+        <h2>Il Cavaliere Oscuro di provincia</h2>
+        <p>
+          Un protagonista parodico e decadente che trasforma drammi quotidiani, burocrazia e crisi esistenziali
+          in una saga personale sospesa tra mito e disagio.
+        </p>
+      </article>
+
+      <article class="showcase-card">
+        <h2>Comparse, amici e antagonisti locali</h2>
+        <p>
+          Bud Spencer, Joker, Hans Landa, Jack Harlow, Pietro Savastano, Pinocchio, Punk Biondo, Uomo Stambecco, Selina Kyle, Daffy Boffetti, Jeffrey Dahmer, Gohan, Jack Black, Morpheus, Acerra Malta
+        </p>
+      </article>
+    </section>
+
+    <div class="showcase-note">
+      Con la partecipazione di: Scott McTominay, Stefano De Martino
+    </div>
+    <div class="showcase-note">
+      Diretto da: Ciakkara Records
+    </div>
+    <div class="showcase-note">
+      Produzione: Google Gemini
+    </div>
+  </main>
+
+  <script src="./site-menu.js?v=7" defer></script>
+</body>
+</html>
+

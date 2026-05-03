@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'"
+  />
+  <title>Storie | Batman Comic Reader</title>
+  <meta name="theme-color" content="#000000" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Comic Reader" />
+  <link rel="manifest" href="./manifest.json?v=7" />
+  <link rel="icon" href="./icons/icon-192.png?v=7" type="image/png" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=7" />
+  <link rel="stylesheet" href="./app.css?v=7" />
+</head>
+<body class="stories-page">
+  <video id="bg-video" autoplay muted loop playsinline preload="metadata">
+    <source src="gotham.mp4" type="video/mp4" />
+  </video>
+
+  <button
+    id="hamburger-toggle"
+    class="hamburger-toggle"
+    type="button"
+    aria-label="Apri menu principale"
+    aria-controls="site-drawer"
+    aria-expanded="false"
+  >
+    <span aria-hidden="true">&#9776;</span>
+  </button>
+
+  <div id="site-drawer-overlay" class="site-drawer-overlay" hidden></div>
+
+  <aside
+    id="site-drawer"
+    class="site-drawer"
+    aria-label="Menu principale"
+    aria-hidden="true"
+    inert
+  >
+    <nav class="site-drawer-nav" aria-label="Link principali">
+      <a href="./index.html" class="site-drawer-link">Home</a>
+      <a href="./storie.html" class="site-drawer-link" aria-current="page">Storie</a>
+      <a href="./personaggi.html" class="site-drawer-link">Personaggi</a>
+      <a href="./crediti.html" class="site-drawer-link">Crediti</a>
+    </nav>
+  </aside>
+
+  <main class="stories-shell" role="main">
+    <section class="story-lore" aria-labelledby="story-lore-hero-title">
+      <div class="story-lore-hero">
+        <span class="stories-badge">Trama e concept</span>
+        <h2 id="story-lore-hero-title" class="story-lore-title">Marigliano, il Cavaliere e il Caos Quotidiano</h2>
+        <p class="story-lore-subtitle">
+          Una saga slice of life surreale e satirica dove l'epica dei supereroi si schianta contro la provincia campana.
+        </p>
+        <p class="story-lore-text">
+          Il fumetto racconta un Cavaliere Oscuro intrappolato in una realt&agrave; troppo piccola per il suo mito.
+          Tra roghi, Goldbet, Fantacalcio, drammi sentimentali, universit&agrave;, dieta chetogenica e amici fuori
+          controllo, la sua vera battaglia non &egrave; salvare Gotham, ma sopravvivere al luned&igrave; mattina.
+        </p>
+      </div>
+
+      <section class="story-lore-section" aria-labelledby="story-concept-title">
+        <h3 id="story-concept-title" class="story-lore-title">Concept generale</h3>
+          <article class="story-lore-card">
+            <p class="story-lore-text">
+              Il fumetto &egrave; una serie slice of life surreale e satirica che prende il genere dei supereroi e lo
+              cala brutalmente nella provincia italiana, con un forte richiamo alla Campania. L'effetto non &egrave;
+              solo comico: il mito eroico viene ridimensionato da bar, periferie, partite, roghi e rituali sociali
+              che diventano pi&ugrave; grandi della vita stessa. Dietro risate, frustrazioni e caos quotidiano si nasconde la ricerca di un senso e di un equilibrio
+              interiore, simboleggiata dal Buddha, figura a cui il protagonista si rivolge quando tutto sembra
+              collassare. &Egrave; il ritratto di un eroe tragico moderno che cerca significato in un mondo che sembra
+              averlo perso.
+            </p>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-meaning-title">
+        <h3 id="story-meaning-title" class="story-lore-title">Il senso del fumetto</h3>
+        <div class="story-lore-grid">
+          <article class="story-lore-card">
+            <h4>Il Vuoto dopo la Vittoria</h4>
+            <p class="story-lore-text">
+              La vittoria non basta. Anche quando il protagonista vince, come nella partita di pallavolo,
+              resta un senso di vuoto interiore che trasforma il trionfo in domanda esistenziale.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>L'Illusione del Controllo</h4>
+            <p class="story-lore-text">
+              Dieta chetogenica, biochimica e disciplina ferrea diventano tentativi disperati di mettere ordine
+              in una vita che continua a sfuggire dalle mani.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Il Martirio Inutile</h4>
+            <p class="story-lore-text">
+              La salita verso Sopra Castello trasforma la fatica in gesto epico, ma la realt&agrave; riporta tutto
+              a una banalissima sofferenza di provincia.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Il Premio Circolare</h4>
+            <p class="story-lore-text">
+              Dopo tanta fatica, il premio del Luna Park &egrave; un portachiavi con la sua stessa faccia: la ricerca
+              del senso gira in tondo e torna sempre all'ego ferito del protagonista.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Contrasto e Disillusione</h4>
+            <p class="story-lore-text">
+              L'immaginario dei supereroi si scontra ogni giorno con SPID, bar, Fantacalcio, diete,
+              drammi sentimentali, amici molesti e provincia.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-glocal-title">
+        <h3 id="story-glocal-title" class="story-lore-title">Il Glocalismo Disagiato</h3>
+        <div class="story-lore-grid">
+          <article class="story-lore-card">
+            <h4>Il Cavaliere Oscuro di Cancello Scalo</h4>
+            <p class="story-lore-text">
+              Un'icona globale viene ridimensionata da una stazione di provincia, dalla polizia locale e
+              da una serie di situazioni assurde che spezzano ogni posa eroica.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>La Batmobile Mahindra</h4>
+            <p class="story-lore-text">
+              Al posto della tecnologia futuristica c'&egrave; una Mahindra arancione che attraversa roghi,
+              strade dissestate e caos locale con una dignit&agrave; tutta provinciale.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>I Nemici a Km 0</h4>
+            <p class="story-lore-text">
+              I villain non sono geni criminali internazionali, ma figure iper-locali come il Ladro di grondaie,
+              la Banda dell'ATM e il Maniaco di Montesantangelo.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>La Toponomastica</h4>
+            <p class="story-lore-text">
+              Gotham si dissolve in luoghi come Somma Vesuviana, Brusciano, Mariglianella, Cancello Scalo,
+              Ercolano e Sopra Castello, dove il mito viene assorbito dalla geografia quotidiana.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-province-title">
+        <h3 id="story-province-title" class="story-lore-title">Critica alla provincia</h3>
+        <div class="story-lore-grid">
+          <article class="story-lore-card">
+            <h4>Il Fantacalcio come Guerra</h4>
+            <p class="story-lore-text">
+              In un mondo dove apparentemente non accade nulla, l'asta del Fantacalcio si trasforma in un
+              conflitto armato, totale, emotivamente devastante.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>I Luoghi del Ritrovo</h4>
+            <p class="story-lore-text">
+              Goldbet, sale giochi decadenti, pub, parcheggi e bar diventano i veri scenari della saga:
+              templi laici di una quotidianit&agrave; resa epica per disperazione.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Il Giudizio Sociale</h4>
+            <p class="story-lore-text">
+              Tutti sanno tutto. Il chiacchiericcio non &egrave; sfondo, ma forza narrativa che condiziona
+              azioni, reputazioni e crolli interiori.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-humor-title">
+        <h3 id="story-humor-title" class="story-lore-title">Umorismo satirico</h3>
+        <div class="story-lore-grid">
+          <article class="story-lore-card">
+            <h4>Satira politica e sociale</h4>
+            <p class="story-lore-text">
+              La confusione ideologica contemporanea viene raccontata con battute assurde e scene grottesche,
+              dove il ridicolo serve a smascherare il vuoto.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Satira di costume</h4>
+            <p class="story-lore-text">
+              Il fumetto prende di mira il maschio sigma, le mode alimentari, l'isolamento emotivo,
+              il cinismo e l'ossessione per il controllo.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>Umorismo dell'assurdo</h4>
+            <p class="story-lore-text">
+              Riferimenti esagerati, black humor e situazioni fuori scala mostrano una verit&agrave; semplice:
+              la realt&agrave; &egrave; gi&agrave; abbastanza grottesca da sembrare una parodia di se stessa.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-climate-title">
+        <h3 id="story-climate-title" class="story-lore-title">Senza mezze stagioni</h3>
+        <article class="story-lore-card">
+          <p class="story-lore-text">
+            Nel fumetto non esiste una giornata normale. Il clima riflette l'instabilit&agrave; mentale del
+            protagonista: o si brucia nel caldo infernale o si gela in un freddo polare. Il meteo estremo
+            giustifica visivamente costumi, cappotti e atmosfere, ma soprattutto mostra che per lui non esiste
+            mai tranquillit&agrave;: o brucia o gela.
+          </p>
+        </article>
+      </section>
+
+      <section class="story-lore-section" aria-labelledby="story-redemption-title">
+        <h3 id="story-redemption-title" class="story-lore-title">La redenzione sporca</h3>
+        <div class="story-lore-grid">
+          <article class="story-lore-card">
+            <h4>La Redenzione Tattica</h4>
+            <p class="story-lore-text">
+              La Resistenza pu&ograve; vincere non con i campioni, ma con gli scarti, gli operai del pallone,
+              i giocatori sottovalutati: &egrave; il Moneyball dei poveri.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>La Redenzione Filosofica</h4>
+            <p class="story-lore-text">
+              Anche un portachiavi di plastica vinto al Luna Park pu&ograve; diventare un trofeo vero,
+              se il protagonista smette di inseguire una gloria impossibile.
+            </p>
+          </article>
+          <article class="story-lore-card">
+            <h4>La vera vittoria</h4>
+            <p class="story-lore-text">
+              Non &egrave; sconfiggere il Joker, ma smettere di prenderlo sul serio. La salvezza &egrave; ridere
+              con gli amici, mangiare un panino con la porchetta e accettare una vittoria sporca, piccola,
+              imperfetta.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <blockquote class="story-lore-quote">
+        &ldquo;Queste storie raccontano una generazione con ambizioni da film americano, ma intrappolata in un film
+        neorealista italiano. Per sopravvivere, non resta che il cinismo, l'amicizia e il Fantacalcio.&rdquo;
+      </blockquote>
+    </section>
+
+    <section class="seasons-section" aria-labelledby="seasons-title">
+      <h2 id="seasons-title" class="title-sub">Seleziona un volume</h2>
+
+      <div class="seasons-grid">
+        <a class="season-card" href="./index.html?season=s1">
+          <div class="season-cover">
+            <img src="./covers/season1.jpg" alt="Copertina del Volume I - L'estate prolungata" />
+          </div>
+          <div class="season-info">
+            <span class="season-badge">S1</span>
+            <h3 class="season-title">Volume I - L'estate prolungata</h3>
+            <p class="season-subtitle">
+              L'inizio del viaggio di Batman nel reader: atmosfera sospesa, citt&agrave; in tensione e prime tavole
+              del racconto.
+            </p>
+          </div>
+        </a>
+
+        <a class="season-card" href="./index.html?season=s2">
+          <div class="season-cover">
+            <img src="./covers/season2.jpg" alt="Copertina del Volume II - Titolo provvisorio" />
+          </div>
+          <div class="season-info">
+            <span class="season-badge">S2</span>
+            <h3 class="season-title">Volume II - Titolo provvisorio</h3>
+            <p class="season-subtitle">
+              Secondo volume in libreria. Il link &egrave; gi&agrave; pronto e agganciato al parametro
+              <code>?season=s2</code>.
+            </p>
+          </div>
+        </a>
+
+        <a class="season-card" href="./index.html?season=s3">
+          <div class="season-cover">
+            <img src="./covers/season3.jpg" alt="Copertina del Volume III - Titolo provvisorio" />
+          </div>
+          <div class="season-info">
+            <span class="season-badge">S3</span>
+            <h3 class="season-title">Volume III - Titolo provvisorio</h3>
+            <p class="season-subtitle">
+              Terza raccolta del fumetto. Se in futuro cambierai titolo o copertina, ti basta aggiornare
+              questa card e il relativo asset in <code>covers/</code>.
+            </p>
+          </div>
+        </a>
+
+        <a class="season-card" href="./index.html?season=s4">
+          <div class="season-cover">
+            <img src="./covers/season4.jpg" alt="Copertina del Volume IV - A Million Miles From Home" />
+          </div>
+          <div class="season-info">
+            <span class="season-badge">S4</span>
+            <h3 class="season-title">Volume IV - A Million Miles From Home</h3>
+            <p class="season-subtitle">
+              Quarto volume del reader, pronto anche lui con collegamento diretto alla stagione corretta
+              tramite <code>?season=s4</code>.
+            </p>  
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <script src="./site-menu.js?v=7" defer></script>
+</body>
+</html>
+
+
