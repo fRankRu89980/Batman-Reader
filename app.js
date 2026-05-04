@@ -254,9 +254,14 @@ function setupHamburgerMenu() {
 
   let drawerOpen = false;
   let lastDrawerFocus = null;
+  const desktopDrawerQuery = window.matchMedia("(min-width: 1024px)");
+
+  function isDesktopDrawerMode() {
+    return desktopDrawerQuery.matches;
+  }
 
   // Apriamo il drawer spostando il focus al primo link utile.
-  function openDrawer() {
+  function openDrawer({ focusFirstLink = true } = {}) {
     drawerOpen = true;
     lastDrawerFocus = document.activeElement instanceof HTMLElement ? document.activeElement : hamburgerToggle;
     hamburgerToggle.setAttribute("aria-expanded", "true");
@@ -268,13 +273,13 @@ function setupHamburgerMenu() {
     document.body.classList.add("hamburger-open");
 
     const firstLink = siteDrawerLinks[0];
-    if(firstLink && typeof firstLink.focus === "function") {
+    if(focusFirstLink && firstLink && typeof firstLink.focus === "function") {
       firstLink.focus();
     }
   }
 
   // Chiudiamo il drawer e riportiamo il focus al trigger.
-  function closeDrawer() {
+  function closeDrawer({ restoreFocus = true } = {}) {
     drawerOpen = false;
     hamburgerToggle.setAttribute("aria-expanded", "false");
     hamburgerToggle.setAttribute("aria-label", "Apri menu principale");
@@ -286,11 +291,25 @@ function setupHamburgerMenu() {
 
     if(
       siteDrawer.contains(document.activeElement) &&
+      restoreFocus &&
       lastDrawerFocus &&
       typeof lastDrawerFocus.focus === "function"
     ) {
       lastDrawerFocus.focus();
     }
+  }
+
+  function syncDrawerMode() {
+    if(isDesktopDrawerMode()) {
+      openDrawer({ focusFirstLink: false });
+      siteDrawerOverlay.hidden = true;
+      document.body.classList.remove("hamburger-open");
+      document.body.classList.add("desktop-drawer-visible");
+      return;
+    }
+
+    document.body.classList.remove("desktop-drawer-visible");
+    closeDrawer({ restoreFocus: false });
   }
 
   function toggleDrawer() {
@@ -303,26 +322,37 @@ function setupHamburgerMenu() {
 
   hamburgerToggle.addEventListener("click", event => {
     event.stopPropagation();
+    if(isDesktopDrawerMode()) return;
     if(guardDoubleTap(event.currentTarget, 220)) return;
     toggleDrawer();
     resetUiFocus(event.currentTarget);
   });
 
   siteDrawerOverlay.addEventListener("click", () => {
+    if(isDesktopDrawerMode()) return;
     closeDrawer();
   });
 
   siteDrawerLinks.forEach(link => {
     link.addEventListener("click", () => {
+      if(isDesktopDrawerMode()) return;
       closeDrawer();
     });
   });
 
   document.addEventListener("keydown", event => {
-    if(event.key === "Escape" && drawerOpen) {
+    if(event.key === "Escape" && drawerOpen && !isDesktopDrawerMode()) {
       closeDrawer();
     }
   });
+
+  if(typeof desktopDrawerQuery.addEventListener === "function") {
+    desktopDrawerQuery.addEventListener("change", syncDrawerMode);
+  } else if(typeof desktopDrawerQuery.addListener === "function") {
+    desktopDrawerQuery.addListener(syncDrawerMode);
+  }
+
+  syncDrawerMode();
 }
 
 function updateNavButtons() {

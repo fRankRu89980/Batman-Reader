@@ -170,8 +170,8 @@ body::before{
   padding:88px 18px 24px;
   display:flex;
   flex-direction:column;
-  background:rgba(11,19,38,0.96);
-  backdrop-filter:blur(22px);
+  background:rgba(11,19,38,0.5);
+  backdrop-filter:blur(24px);
   border-right:1px solid rgba(255,255,255,0.08);
   box-shadow:28px 0 48px rgba(0,0,0,0.35);
   transform:translateX(-105%);
@@ -235,6 +235,10 @@ body::before{
 .personaggi-page,
 .roulette-page{
   padding-top:108px;
+}
+
+body.desktop-drawer-visible{
+  padding-left:352px;
 }
 
 .stories-shell{
@@ -697,6 +701,13 @@ body::before{
   transform:translateY(-2px);
   box-shadow:0 16px 34px rgba(241,196,15,0.4);
   outline:none;
+}
+
+.season-popup-helper-row{
+  width:100%;
+  max-width:760px;
+  display:flex;
+  justify-content:flex-start;
 }
 
 .season-popup-row{
@@ -1889,6 +1900,30 @@ button,
     min-height:fit-content;
   }
 
+}
+
+@media (min-width:1024px){
+  .hamburger-toggle{
+    display:none;
+  }
+
+  .site-drawer-overlay{
+    display:none !important;
+  }
+
+  .site-drawer{
+    transform:translateX(0);
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    width:312px;
+    padding:28px 18px 24px;
+    box-shadow:20px 0 44px rgba(0,0,0,0.3);
+  }
+
+  .menu{
+    left:372px;
+  }
 }
 
 @media (max-width:600px){

@@ -9,9 +9,14 @@ function setupSecondaryHamburgerMenu() {
 
   let drawerOpen = false;
   let lastFocusedElement = null;
+  const desktopDrawerQuery = window.matchMedia("(min-width: 1024px)");
+
+  function isDesktopDrawerMode() {
+    return desktopDrawerQuery.matches;
+  }
 
   // Apriamo il drawer e portiamo il focus al primo link disponibile.
-  function openDrawer() {
+  function openDrawer({ focusFirstLink = true } = {}) {
     drawerOpen = true;
     lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : secondaryHamburgerToggle;
     secondaryHamburgerToggle.setAttribute("aria-expanded", "true");
@@ -23,13 +28,13 @@ function setupSecondaryHamburgerMenu() {
     document.body.classList.add("hamburger-open");
 
     const firstLink = secondaryDrawerLinks[0];
-    if(firstLink && typeof firstLink.focus === "function") {
+    if(focusFirstLink && firstLink && typeof firstLink.focus === "function") {
       firstLink.focus();
     }
   }
 
   // Chiudiamo il drawer senza lasciare il focus dentro il pannello nascosto.
-  function closeDrawer() {
+  function closeDrawer({ restoreFocus = true } = {}) {
     drawerOpen = false;
     secondaryHamburgerToggle.setAttribute("aria-expanded", "false");
     secondaryHamburgerToggle.setAttribute("aria-label", "Apri menu principale");
@@ -41,6 +46,7 @@ function setupSecondaryHamburgerMenu() {
 
     if(
       secondaryDrawer.contains(document.activeElement) &&
+      restoreFocus &&
       lastFocusedElement &&
       typeof lastFocusedElement.focus === "function"
     ) {
@@ -48,8 +54,22 @@ function setupSecondaryHamburgerMenu() {
     }
   }
 
+  function syncDrawerMode() {
+    if(isDesktopDrawerMode()) {
+      openDrawer({ focusFirstLink: false });
+      secondaryDrawerOverlay.hidden = true;
+      document.body.classList.remove("hamburger-open");
+      document.body.classList.add("desktop-drawer-visible");
+      return;
+    }
+
+    document.body.classList.remove("desktop-drawer-visible");
+    closeDrawer({ restoreFocus: false });
+  }
+
   secondaryHamburgerToggle.addEventListener("click", event => {
     event.stopPropagation();
+    if(isDesktopDrawerMode()) return;
     if(drawerOpen) {
       closeDrawer();
       return;
@@ -59,17 +79,31 @@ function setupSecondaryHamburgerMenu() {
     secondaryHamburgerToggle.blur();
   });
 
-  secondaryDrawerOverlay.addEventListener("click", closeDrawer);
+  secondaryDrawerOverlay.addEventListener("click", () => {
+    if(isDesktopDrawerMode()) return;
+    closeDrawer();
+  });
 
   secondaryDrawerLinks.forEach(link => {
-    link.addEventListener("click", closeDrawer);
+    link.addEventListener("click", () => {
+      if(isDesktopDrawerMode()) return;
+      closeDrawer();
+    });
   });
 
   document.addEventListener("keydown", event => {
-    if(event.key === "Escape" && drawerOpen) {
+    if(event.key === "Escape" && drawerOpen && !isDesktopDrawerMode()) {
       closeDrawer();
     }
   });
+
+  if(typeof desktopDrawerQuery.addEventListener === "function") {
+    desktopDrawerQuery.addEventListener("change", syncDrawerMode);
+  } else if(typeof desktopDrawerQuery.addListener === "function") {
+    desktopDrawerQuery.addListener(syncDrawerMode);
+  }
+
+  syncDrawerMode();
 }
 
 function setupSecondaryMediaPerformance() {
